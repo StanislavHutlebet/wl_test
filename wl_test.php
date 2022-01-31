@@ -3,10 +3,9 @@
  * Plugin Name: WL TEST
  * Description: This describes my plugin in a short sentence
  * Version: 1.1.1
- * Author: Stas Hutlebet
 
+ * Author: Stas Hutlebet
  * Text Domain: wl_test
- * Domain Path: /languages
  */
 
 class WL_test {
@@ -37,8 +36,8 @@ class WL_test {
 		} );
 
         // filters for register external page template
-		add_filter( 'page_template', [ 'WL_test', 'page_template' ] );
-		add_filter( 'theme_page_templates', [ 'WL_test', 'add_page_template_to_select' ], 10, 4 );
+		add_filter( 'page_template', [ 'WL_test', 'pageTemplate' ] );
+		add_filter( 'theme_page_templates', [ 'WL_test', 'addPageTemplateToSelect' ], 10, 4 );
 
 	}
 
@@ -52,16 +51,15 @@ class WL_test {
 	}
 
     // page template check
-	public static function page_template( $page_template ): string {
+	public static function pageTemplate( $page_template ): string {
 		if ( get_page_template_slug() == 'wl_test-page-template.php' ) {
 			$page_template = dirname( __FILE__ ) . '/assets/views/wl_test-page-template.php';
 		}
 
 		return $page_template;
 	}
-
     // add a page template to the pages templates
-	public static function add_page_template_to_select( $post_templates ): array {
+	public static function addPageTemplateToSelect( $post_templates ): array {
 		$post_templates['wl_test-page-template.php'] = __( 'WL Test Page Template', 'wl_test' );
 
 		return $post_templates;
@@ -77,7 +75,7 @@ class WL_test {
 		$result = [
 			'status' => false,
             'status_message' => __('Empty data', 'wl_test'),
-            'post' => $post
+            //'post' => $post
 		];
 
         // move data to data
@@ -91,7 +89,7 @@ class WL_test {
                 //login method
                 case 'login' :
                     if (isset($data['email'])&&isset($data['password'])) {
-                        // if email and passwrd are not empty
+                        // if email and password are not empty
 
                         // getting a user by email
                         $user = get_user_by('email', $data['email']);
@@ -131,12 +129,14 @@ class WL_test {
                         // check if user was created
                         if ($user_id&&!is_wp_error($user_id)) {
 
-                            // set the ser user role
+                            // set the user role
+                            // get User by ID
                             $user_id_role = new WP_User($user_id);
+                            // set this user new role
                             $user_id_role->set_role(apply_filters(
                                 // filter for external logic
-                                'WL_test__default_user_role',
-                                'subscriber',
+                                'WL_test__default_user_role', // hook name
+                                'subscriber', // default role subscriber
                                 $user_id,
                                 $data
                             ));
@@ -175,7 +175,7 @@ class WL_test {
         if ($user&&!is_wp_error($user)) {
             // if user exists
             wp_set_current_user($user_id, $user->user_login);
-            wp_set_auth_cookie($user_id);
+            wp_set_auth_cookie($user_id); // sending user token for the frontend cookie
             do_action('wp_login', $user->user_login);
             return true;
         }
@@ -194,4 +194,3 @@ class WL_test {
 
 // init class
 WL_test::getInstance();
-
