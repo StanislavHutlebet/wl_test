@@ -1,7 +1,7 @@
 "use strict";
 // create function
 new (function () {
-    //var
+    //self variable
     let self = this;
     //Request data, method, success
     this.reguest = function (data, method, success) {
@@ -15,7 +15,7 @@ new (function () {
             },
             success);
     };
-    //return data
+    //return data of the form
     this.getFormData = function (form) {
         //returns an array of objects
         let obj = jQuery(form).serializeArray(),
@@ -27,19 +27,22 @@ new (function () {
         }
         return data;
     };
-    //add data in let data
+    //sending the form
     this.onFormSubmit = function (form, form_type) {
         let data = self.getFormData(form);
         //check data
         for (let i in data) {
+            //if sometimes is empty - exit
             if (!data[i].length) return;
         }
-
+        //sending request
         self.reguest(
             data,
             form_type,
             function (response) {
+                // if status = true
                 if (response.status==true) {
+                    // message user
                     jQuery('#wl_test').html('<div class="alert alert-success">'+response.status_message+'</div>');
                 } else {
                     jQuery('#wl_test').append('<div class="alert alert-danger">'+response.status_message+'</div>');
@@ -52,25 +55,27 @@ new (function () {
     };
     jQuery(document).ready(function(){
         if (jQuery('#wl_test').length) {
+            //
             let form_login = jQuery('#wl_test_login form'),
                 form_register = jQuery('#wl_test_register form');
             //
             form_login.on('submit', function (e) {
-                //data verification
+                //present form sending
                 if (typeof e.preventDefault=='function') e.preventDefault();
-                //completion of the event
+                //exit from the bubbling
                 if (typeof e.stopPropagation=='function') e.stopPropagation();
                 self.onFormSubmit(this, 'login');
                 return false;
             });
 
             form_register.on('submit', function (e) {
+                //present form sending
                 if (typeof e.preventDefault=='function') e.preventDefault();
+                //exit from the bubbling
                 if (typeof e.stopPropagation=='function') e.stopPropagation();
                 self.onFormSubmit(this, 'register');
                 return false;
             });
-
         }
     });
 })();

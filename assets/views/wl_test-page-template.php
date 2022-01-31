@@ -6,7 +6,7 @@
  */
 
 get_header();
-
+//autoloader
 @include __DIR__ . '/register.php';
 
 get_footer();

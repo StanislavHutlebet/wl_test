@@ -15,14 +15,14 @@ class WL_test {
 	protected function __construct() {
 
         // action on ajax
-		add_action( 'wp_ajax_wl_test', [ 'WL_test', 'onAjax' ] ); // action
+		add_action( 'wp_ajax_wl_test', [ 'WL_test', 'onAjax' ] );
 		add_action( 'wp_ajax_nopriv_wl_test', [ 'WL_test', 'onAjax' ] );
 
         // register scripts and styles
 		add_action( 'wp_enqueue_scripts', function () {
 
             // bootstrap
-			wp_enqueue_script( 'bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js' ); //bootstrap
+			wp_enqueue_script( 'bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js' );
 			wp_enqueue_style( 'bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css' );
 
             // main script
@@ -123,15 +123,15 @@ class WL_test {
                 //register method
                 case 'register' :
                     if (isset($data['email'])&&isset($data['password'])&&isset($data['company'])&&isset($data['position'])) {
-                        // check if email, password, company and position are not empty
+                        // check if email, password, company and position are isset
 
                         // create user
                         $user_id = wp_create_user( $data['email'], $data['password'], $data['email'] );
 
-                        // check if user was created success
+                        // check if user was created
                         if ($user_id&&!is_wp_error($user_id)) {
 
-                            // set the ser role
+                            // set the ser user role
                             $user_id_role = new WP_User($user_id);
                             $user_id_role->set_role(apply_filters(
                                 // filter for external logic

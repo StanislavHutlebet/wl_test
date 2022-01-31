@@ -31,7 +31,7 @@
                 </div>
                 <div class="tab-pane fade" id="wl_test_register" role="tabpanel" aria-labelledby="wl_test_register-tab">
                     <h2><?php _e('Register', 'wl_test')?></h2>
-                    <!-- Regiter form -->
+                    <!-- Register form -->
                     <form class="form-register">
                         <div class="form-group">
                             <label class="control-label" for="reg_email"><?php _e('Email', 'wl_test')?></label>
