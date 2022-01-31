@@ -1,6 +1,8 @@
-<div style="height:100vh;display: flex;flex-direction: column;justify-content: center;align-items: center">
+<div style="min-height:80vh;display: flex;flex-direction: column;justify-content: center;align-items: center">
     <?php if (!is_user_logged_in()) : ?>
+        <!-- If user i not logged in -->
         <div id="wl_test">
+            <!-- Navigation tabs -->
             <ul class="nav nav-tabs" id="wl_test_tabs" role="tablist">
                 <li class="nav-item">
                     <a class="nav-link active" href="#wl_test_login" id="wl_test_login-tab" data-toggle="tab" role="tab" aria-controls="wl_test_login" aria-selected="true"><?php _e('Login', 'wl_test')?></a>
@@ -11,7 +13,8 @@
             </ul>
             <div id="wl_tab_content" class="tab-content">
                 <div class="tab-pane fade show active" id="wl_test_login" role="tabpanel" aria-labelledby="wl_test_login-tab">
-                    <h2><?php _e('Login', 'wl_test')?></h2>  //Login
+                    <h2><?php _e('Login', 'wl_test')?></h2>
+                    <!-- Login form -->
                     <form class="form-login">
                         <div class="form-group">
                             <label class="control-label" for="email"><?php _e('Email', 'wl_test')?></label>
@@ -27,7 +30,8 @@
                     </form>
                 </div>
                 <div class="tab-pane fade" id="wl_test_register" role="tabpanel" aria-labelledby="wl_test_register-tab">
-                    <h2><?php _e('Register', 'wl_test')?></h2>  //Register
+                    <h2><?php _e('Register', 'wl_test')?></h2>
+                    <!-- Regiter form -->
                     <form class="form-register">
                         <div class="form-group">
                             <label class="control-label" for="reg_email"><?php _e('Email', 'wl_test')?></label>
@@ -53,6 +57,7 @@
             </div>
         </div>
     <?php else : ?>
+        <!-- Exit if user is allready registered -->
         <div class="alert alert-success">
             <?php _e('You are logged in', 'wl_test'); ?>
         </div>

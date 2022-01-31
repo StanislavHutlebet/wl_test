@@ -14,24 +14,35 @@ class WL_test {
 
 	protected function __construct() {
 
-		add_action( 'wp_ajax_wl_test', [ 'WL_test', 'onAjax' ] );
+        // action on ajax
+		add_action( 'wp_ajax_wl_test', [ 'WL_test', 'onAjax' ] ); // action
 		add_action( 'wp_ajax_nopriv_wl_test', [ 'WL_test', 'onAjax' ] );
+
+        // register scripts and styles
 		add_action( 'wp_enqueue_scripts', function () {
-			wp_enqueue_script( 'bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js' );
+
+            // bootstrap
+			wp_enqueue_script( 'bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js' ); //bootstrap
 			wp_enqueue_style( 'bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css' );
 
+            // main script
 			wp_enqueue_script( 'wl_test', plugin_dir_url( __FILE__ ) . '/assets/scripts/wl_test.js' );
+
+            // variables for script
 			wp_localize_script( 'wl_test', 'wl_test_inf',
 				[
 					'url' => admin_url( 'admin-ajax.php' )
 				]
 			);
 		} );
+
+        // filters for register external page template
 		add_filter( 'page_template', [ 'WL_test', 'page_template' ] );
 		add_filter( 'theme_page_templates', [ 'WL_test', 'add_page_template_to_select' ], 10, 4 );
 
 	}
 
+    // constructor
 	public static function getInstance(): WL_test {
 		if ( ! self::$_instance ) {
 			self::$_instance = new static();
@@ -40,6 +51,7 @@ class WL_test {
 		return self::$_instance;
 	}
 
+    // page template check
 	public static function page_template( $page_template ): string {
 		if ( get_page_template_slug() == 'wl_test-page-template.php' ) {
 			$page_template = dirname( __FILE__ ) . '/assets/views/wl_test-page-template.php';
@@ -48,31 +60,52 @@ class WL_test {
 		return $page_template;
 	}
 
+    // add a page template to the pages templates
 	public static function add_page_template_to_select( $post_templates ): array {
 		$post_templates['wl_test-page-template.php'] = __( 'WL Test Page Template', 'wl_test' );
 
 		return $post_templates;
 	}
 
+    // ajax
 	public static function onAjax() {
+
+        // @todo validation
 		$post = $_POST;
+
+        // action result template
 		$result = [
 			'status' => false,
             'status_message' => __('Empty data', 'wl_test'),
             'post' => $post
 		];
 
+        // move data to data
         $data = $post['data'];
 
+        //Check if user is logged in
         if (!is_user_logged_in()) {
 
+            // check method
             switch ( $post['method'] ) {
+                //login method
                 case 'login' :
                     if (isset($data['email'])&&isset($data['password'])) {
+                        // if email and passwrd are not empty
+
+                        // getting a user by email
                         $user = get_user_by('email', $data['email']);
+
+                        // check if user in not error
                         if ($user&&!is_wp_error($user)) {
+
+                            // compare user password
                             if (wp_check_password($data['password'], $user->data->user_pass)) {
+
+                                // login user into system
                                 self::$_instance->login($user->ID);
+
+                                // set the status is valid and good
                                 $result['status'] = true;
                                 $result['status_message'] = __('You are logged in', 'wl_test');
                             } else {
@@ -86,24 +119,41 @@ class WL_test {
                         $result['status_message'] = __('Login or password are not set', 'wl_test');
                     }
                     break;
+
+                //register method
                 case 'register' :
                     if (isset($data['email'])&&isset($data['password'])&&isset($data['company'])&&isset($data['position'])) {
+                        // check if email, password, company and position are not empty
+
+                        // create user
                         $user_id = wp_create_user( $data['email'], $data['password'], $data['email'] );
+
+                        // check if user was created success
                         if ($user_id&&!is_wp_error($user_id)) {
+
+                            // set the ser role
                             $user_id_role = new WP_User($user_id);
                             $user_id_role->set_role(apply_filters(
+                                // filter for external logic
                                 'WL_test__default_user_role',
                                 'subscriber',
                                 $user_id,
                                 $data
                             ));
+
+                            //add user metafields
                             update_user_meta($user_id, 'company', $data['company']);
                             update_user_meta($user_id, 'position', $data['position']);
+
+                            // login user
                             self::$_instance->login($user_id);
+
+                            // set the status is valid and good
                             $result['status'] = true;
                             $result['status_message'] = __('You are logged in', 'wl_test');
                         } else {
-                            $result['status_message'] = $user_id->get_error_message();
+                            // set the status message by the error
+                            $result['status_message'] = $user_id?$user_id->get_error_message():__('Unknown error', 'wl_test');
                         }
                     } else {
                         $result['status_message'] = __('Please check all fields', 'wl_test');
@@ -114,28 +164,34 @@ class WL_test {
         } else {
             $result['status_message'] = __('You are logged in', 'wl_test');
         }
+
+        // send the result
 		wp_send_json($result);
 	}
 
-    public function login($user_id) {
+    public function login($user_id) : bool {
+        // login user by user id
         $user = get_user_by('id', $user_id);
         if ($user&&!is_wp_error($user)) {
-            $user_login = $user->user_login;
-            wp_set_current_user($user_id, $user_login);
+            // if user exists
+            wp_set_current_user($user_id, $user->user_login);
             wp_set_auth_cookie($user_id);
-            do_action('wp_login', $user_login);
+            do_action('wp_login', $user->user_login);
+            return true;
         }
+        return false;
     }
 
 	public function __wakeup() {
-
+        // can't wakeup
 	}
 
 	public function __clone() {
-
+        // can't be clonned
 	}
 
 }
 
+// init class
 WL_test::getInstance();
 

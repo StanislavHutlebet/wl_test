@@ -1,8 +1,9 @@
 "use strict";
-
+// create function
 new (function () {
+    //var
     let self = this;
-
+    //Request data, method, success
     this.reguest = function (data, method, success) {
 
         jQuery.post(
@@ -14,18 +15,22 @@ new (function () {
             },
             success);
     };
-
+    //return data
     this.getFormData = function (form) {
+        //returns an array of objects
         let obj = jQuery(form).serializeArray(),
+            // data recording
             data = {};
+        //array bust
         for (let i = obj.length - 1; i >= 0; i--) {
             data[obj[i].name] = obj[i].value;
         }
         return data;
     };
+    //add data in let data
     this.onFormSubmit = function (form, form_type) {
         let data = self.getFormData(form);
-
+        //check data
         for (let i in data) {
             if (!data[i].length) return;
         }
@@ -49,9 +54,11 @@ new (function () {
         if (jQuery('#wl_test').length) {
             let form_login = jQuery('#wl_test_login form'),
                 form_register = jQuery('#wl_test_register form');
-
+            //
             form_login.on('submit', function (e) {
+                //data verification
                 if (typeof e.preventDefault=='function') e.preventDefault();
+                //completion of the event
                 if (typeof e.stopPropagation=='function') e.stopPropagation();
                 self.onFormSubmit(this, 'login');
                 return false;
